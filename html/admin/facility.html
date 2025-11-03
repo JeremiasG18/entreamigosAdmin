@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EntreAmigos</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header-admin">
+        <nav class="navbar-admin">
+            <img src="../../img/logo.png" class="logo" alt="logo">
+            <ul class="nav-links">
+                <li><a href="./dashboard.html">Reservas</a></li>
+                <li><a href="./facility.html">Complejo</a></li>
+                <li><a href="#">Cuenta</a></li>
+                <li><a href="#" id="logout">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Complejo</h1>
+        <section class="form-facility">
+            <h2>Información</h2>
+            <form action="" method="post" class="formFacility">
+                <p>Estos son los datos registrados de su complejo</p>
+                <div class="input-container">
+                    <input type="text" name="name" id="name" placeholder="Nombre">
+                    <input type="text" name="phone" id="phone" placeholder="Telefono">
+                    <input type="text" name="address" id="address" placeholder="Ubicación">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d57293.96597675995!2d-58.1913676996582!3d-26.168269373503147!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2sar!4v1762013224307!5m2!1ses!2sar" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" id="mapa"></iframe>
+                    <input type="text" name="mp" id="mp" placeholder="Id de su cuenta de mercado pago">
+                    <input type="file" name="image" id="image" accept="image/png, image/jpeg, image/jpg">
+                </div>
+                <input type="submit" value="Guardar datos" class="btn btn_important btn-form">
+            </form>
+        </section>
+        <section class="form-availability">
+            <h2>Disponibilidad</h2>
+            <form action="">
+                <label for=""></label>
+            </form>
+        </section>
+    </main>
+
+    <script type="module" src="../../js/main.js"></script>
+</body>
+</html>
