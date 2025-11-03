@@ -22,7 +22,7 @@ if (url.includes('index.html') || url === 'http://127.0.0.1:5500/') {
         const message = document.getElementById('password').nextElementSibling;
         
         message.setAttribute('class', 'message');
-        
+            
         if (response.status === 'error') {
             message.classList.add('message-error');
             message.textContent = response.message;
