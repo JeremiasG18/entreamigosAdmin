@@ -1,4 +1,5 @@
 import { login, sendEmail, resetPassword, register, verifyToken } from './auth.js';
+import { facility } from './admin.js';
 
 const url = window.location.href;
 
@@ -128,15 +129,8 @@ if (url.includes('resetPassword')) {
     })
 }
 
-// admin
-if (url.includes('dashboard')) {
-
-    const root = document.querySelector('.root');
-    
-    if (!localStorage.getItem("authToken")) {
-        window.location.href = '../../index.html';
-    }
-
+// logout
+if (url.includes('dashboard') || url.includes('facility')) {
     document.getElementById('logout')
     .addEventListener('click', (e) => {
         e.preventDefault();
@@ -145,3 +139,46 @@ if (url.includes('dashboard')) {
         window.location.href = '../../index.html';
     });
 }
+
+// admin
+if (url.includes('dashboard')) {
+    
+    if (!localStorage.getItem("authToken")) {
+        window.location.href = '../../index.html';
+    }
+}
+
+if (url.includes('facility')) {
+    
+    addEventListener('DOMContentLoaded', async () => {
+        const response = await facility();
+
+        if (response.message === 'Token inválido o expirado') {
+            localStorage.removeItem('authToken');
+            window.location.href = '../../../index.html';
+        }
+    
+        if (response.message === 'Por favor registra tu complejo!') {
+            const p = document.querySelector('.formFacility').nextElementSibling;
+            p.textContent = response.message;
+        }
+        
+        document.getElementById('name').value = response.facility.nombre;
+        document.getElementById('phone').value = response.facility.telefono;
+        document.getElementById('address').value = response.facility.ubicacion;
+        document.getElementById('mp').value = response.facility.id_mp;
+
+        const latitud = '-26.183754998440932';
+        const longitud = '-58.2242295528441';
+
+        console.log(latitud, longitud);
+        
+
+        const url = `https://www.google.com/maps?q=${latitud},${longitud}&z=16&hl=es&output=embed`;
+        document.getElementById('mapa').src = url;
+        
+    });
+
+}
+
+// AIzaSyCw1sulYiZqKQHyHqxlE2Ej3IhYnmrrSZA
