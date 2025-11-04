@@ -150,6 +150,12 @@ if (url.includes('dashboard')) {
 
 if (url.includes('facility')) {
     
+    const name = document.getElementById('name');
+    const phone = document.getElementById('phone');
+    const address = document.getElementById('address');
+    const image = document.getElementById('imgfacility');
+    const mp = document.getElementById('mp');
+
     addEventListener('DOMContentLoaded', async () => {
         const response = await facility();
 
