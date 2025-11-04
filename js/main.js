@@ -23,7 +23,7 @@ if (url.includes('index.html') || url === 'http://127.0.0.1:5500/') {
         const message = document.getElementById('password').nextElementSibling;
         
         message.setAttribute('class', 'message');
-        
+            
         if (response.status === 'error') {
             message.classList.add('message-error');
             message.textContent = response.message;
@@ -175,12 +175,12 @@ if (url.includes('facility')) {
             address.value = response.facility.ubicacion;
             mp.value = response.facility.id_mp;
             image.src = `http://localhost:8000/${response.facility.foto_url}`;
-
-        const latitud = '-26.183754998440932';
-        const longitud = '-58.2242295528441';
-
-        const url = `https://www.google.com/maps?q=${latitud},${longitud}&z=16&hl=es&output=embed`;
-        document.getElementById('mapa').src = url;
+    
+            const latitud = '-26.183754998440932';
+            const longitud = '-58.2242295528441';
+    
+            const url = `https://www.google.com/maps?q=${latitud},${longitud}&z=16&hl=es&output=embed`;
+            document.getElementById('mapa').src = url;
         }        
     });
 
