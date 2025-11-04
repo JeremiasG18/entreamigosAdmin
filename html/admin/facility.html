@@ -27,6 +27,7 @@
         <section class="form-facility">
             <h2>Información</h2>
             <form action="" method="post" class="formFacility">
+                <input type="hidden" name="facility" value="actualizar" id="fmDataFacility">
                 <p>Estos son los datos registrados de su complejo</p>
                 <div class="input-container">
                     <input type="text" name="name" id="name" placeholder="Nombre">
@@ -35,14 +36,15 @@
                     <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d57293.96597675995!2d-58.1913676996582!3d-26.168269373503147!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2sar!4v1762013224307!5m2!1ses!2sar" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" id="mapa"></iframe>
                     <input type="text" name="mp" id="mp" placeholder="Id de su cuenta de mercado pago">
                     <input type="file" name="image" id="image" accept="image/png, image/jpeg, image/jpg">
+                    <img src="" alt="imagen del complejo" id="imgfacility">
+                    <input type="submit" value="Actualizar datos" class="btn btn_important btn-form" id="btn-action-facility">
                 </div>
-                <input type="submit" value="Guardar datos" class="btn btn_important btn-form">
             </form>
         </section>
         <section class="form-availability">
             <h2>Disponibilidad</h2>
             <form action="">
-                <label for=""></label>
+                
             </form>
         </section>
     </main>

@@ -33,3 +33,23 @@ export async function getData(endpoint, dataUrl = null, token = null) {
 
     return response.json();
 }
+
+export async function putData(endpoint, data = null, dataUrl = null, token = null) {
+    let response;
+
+    if (dataUrl !== null) {
+        response = await fetch(`${BASE_URL}${endpoint}/?token=${dataUrl}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+    }else{
+        response = await fetch(`${BASE_URL}${endpoint}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+    }
+}

@@ -1,5 +1,5 @@
 import { login, sendEmail, resetPassword, register, verifyToken } from './auth.js';
-import { facility } from './admin.js';
+import { facility, saveFacility } from './admin.js';
 
 const url = window.location.href;
 
@@ -150,6 +150,12 @@ if (url.includes('dashboard')) {
 
 if (url.includes('facility')) {
     
+    const name = document.getElementById('name');
+    const phone = document.getElementById('phone');
+    const address = document.getElementById('address');
+    const image = document.getElementById('imgfacility');
+    const mp = document.getElementById('mp');
+
     addEventListener('DOMContentLoaded', async () => {
         const response = await facility();
 
@@ -161,24 +167,40 @@ if (url.includes('facility')) {
         if (response.message === 'Por favor registra tu complejo!') {
             const p = document.querySelector('.formFacility').nextElementSibling;
             p.textContent = response.message;
-        }
-        
-        document.getElementById('name').value = response.facility.nombre;
-        document.getElementById('phone').value = response.facility.telefono;
-        document.getElementById('address').value = response.facility.ubicacion;
-        document.getElementById('mp').value = response.facility.id_mp;
-
-        const latitud = '-26.183754998440932';
-        const longitud = '-58.2242295528441';
-
-        console.log(latitud, longitud);
-        
-
-        const url = `https://www.google.com/maps?q=${latitud},${longitud}&z=16&hl=es&output=embed`;
-        document.getElementById('mapa').src = url;
-        
+            document.getElementById('fmDataFacility').value = 'registrar';
+            document.getElementById('btn-action-facility').value = 'Registrar complejo';
+        }else{
+            name.value = response.facility.nombre;
+            phone.value = response.facility.telefono;
+            address.value = response.facility.ubicacion;
+            mp.value = response.facility.id_mp;
+            image.src = `http://localhost:8000/${response.facility.foto_url}`;
+    
+            const latitud = '-26.183754998440932';
+            const longitud = '-58.2242295528441';
+    
+            const url = `https://www.google.com/maps?q=${latitud},${longitud}&z=16&hl=es&output=embed`;
+            document.getElementById('mapa').src = url;
+        }        
     });
 
-}
+    document.querySelector('.formFacility')
+    .addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-// AIzaSyCw1sulYiZqKQHyHqxlE2Ej3IhYnmrrSZA
+        const accion = document.getElementById('fmDataFacility').value;
+
+        const response = await saveFacility(
+            name.value,
+            phone.value,
+            address.value,
+            image.value,
+            mp.value,
+            accion
+        );
+
+        console.log(response);
+        
+    })
+
+}
