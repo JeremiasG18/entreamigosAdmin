@@ -1,5 +1,5 @@
 import { login, sendEmail, resetPassword, register, verifyToken } from './auth.js';
-import { facility } from './admin.js';
+import { facility, saveFacility } from './admin.js';
 
 const url = window.location.href;
 
