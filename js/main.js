@@ -167,24 +167,44 @@ if (url.includes('facility')) {
         if (response.message === 'Por favor registra tu complejo!') {
             const p = document.querySelector('.formFacility').nextElementSibling;
             p.textContent = response.message;
-        }
-        
-        document.getElementById('name').value = response.facility.nombre;
-        document.getElementById('phone').value = response.facility.telefono;
-        document.getElementById('address').value = response.facility.ubicacion;
-        document.getElementById('mp').value = response.facility.id_mp;
+            document.getElementById('fmDataFacility').value = 'registrar';
+            document.getElementById('btn-action-facility').value = 'Registrar complejo';
+        }else{
+            name.value = response.facility.nombre;
+            phone.value = response.facility.telefono;
+            address.value = response.facility.ubicacion;
+            mp.value = response.facility.id_mp;
+            image.src = `http://localhost:8000/${response.facility.foto_url}`;
 
         const latitud = '-26.183754998440932';
         const longitud = '-58.2242295528441';
 
-        console.log(latitud, longitud);
-        
-
         const url = `https://www.google.com/maps?q=${latitud},${longitud}&z=16&hl=es&output=embed`;
         document.getElementById('mapa').src = url;
-        
+        }        
     });
 
-}
+    document.querySelector('.formFacility')
+    .addEventListener('submit', async (e) => {
+        e.preventDefault();
 
+<<<<<<< HEAD
   // AIzaSyCw1sulYiZqKQHyHqxlE2Ej3IhYnmrrSZA
+=======
+        const accion = document.getElementById('fmDataFacility').value;
+
+        const response = await saveFacility(
+            name.value,
+            phone.value,
+            address.value,
+            image.value,
+            mp.value,
+            accion
+        );
+
+        console.log(response);
+        
+    })
+
+}
+>>>>>>> 411e59b718ad68ede2cf80b80bcc3daf49209d4e
