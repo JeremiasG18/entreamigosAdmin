@@ -1,5 +1,5 @@
 import { login, sendEmail, resetPassword, register, verifyToken } from './auth.js';
-import { facility, saveFacility } from './admin.js';
+import { facility, saveAvailability, saveFacility, saveFields } from './admin.js';
 
 const url = window.location.href;
 
@@ -134,9 +134,12 @@ if (url.includes('dashboard') || url.includes('facility')) {
     document.getElementById('logout')
     .addEventListener('click', (e) => {
         e.preventDefault();
-        
-        localStorage.removeItem('authToken');
-        window.location.href = '../../index.html';
+
+        if(window.confirm('Quieres cerrar sesión?') === true){
+            localStorage.removeItem('authToken');
+            window.location.href = '../../index.html';
+        }
+
     });
 }
 
@@ -149,62 +152,370 @@ if (url.includes('dashboard')) {
 }
 
 if (url.includes('facility')) {
-    
-    const name = document.getElementById('name');
-    const phone = document.getElementById('phone');
-    const address = document.getElementById('address');
-    const image = document.getElementById('imgfacility');
-    const mp = document.getElementById('mp');
 
-    addEventListener('DOMContentLoaded', async () => {
-        const response = await facility();
+    document.addEventListener('DOMContentLoaded', async () => {
+        const { status = null, message = null, availability = null, types_fields = null, fields = null, facilities = null, token = null } = await facility();
 
-        if (response.message === 'Token inválido o expirado') {
+        if (message === 'Token inválido o expirado') {
             localStorage.removeItem('authToken');
             window.location.href = '../../../index.html';
+            return;
         }
-    
-        if (response.message === 'Por favor registra tu complejo!') {
-            const p = document.querySelector('.formFacility').nextElementSibling;
-            p.textContent = response.message;
+
+        // Campos - Complejos
+        const id = document.getElementById('id');
+        const name = document.getElementById('name');
+        const phone = document.getElementById('phone');
+        const address = document.getElementById('address');
+        const uploadImage = document.getElementById('image');
+        const imagePreview = document.getElementById('imgfacility');
+        const mp = document.getElementById('mp');
+
+        // Campos - Disponibilidad
+        const actionAvailability = document.getElementById('actionAvailability');
+
+        if (message !== null) {
+            // complejo
+            const p = id.nextElementSibling;
+            p.textContent = message;
             document.getElementById('fmDataFacility').value = 'registrar';
             document.getElementById('btn-action-facility').value = 'Registrar complejo';
-        }else{
-            name.value = response.facility.nombre;
-            phone.value = response.facility.telefono;
-            address.value = response.facility.ubicacion;
-            mp.value = response.facility.id_mp;
-            image.src = `http://localhost:8000/${response.facility.foto_url}`;
-    
+            imagePreview.classList.add('hidden');
+        }
+
+        if (availability === null) {
+            // disponibilidad
+            document.querySelector('.pAvailability').textContent = 'Registra datos de disponibilidad del complejo.';
+            document.getElementById('btn-action-availability').value = 'Registrar disponibilidad';
+        }
+
+        if (fields === null) {
+            // canchas
+            document.querySelector('.pFields').textContent = 'Registra datos de la/s canchas que posee su complejo.';
+            document.getElementById('btn-action-field').value = 'Registrar canchas';
+        }
+
+        // disponibilidad
+        actionAvailability.value = availability !== null ? 'actualizar' : 'registrar';
+
+        if(facilities !== null){
+            // Información del complejo
+            name.value = facilities.nombre;
+            phone.value = facilities.telefono;
+            address.value = facilities.ubicacion;
+
             const latitud = '-26.183754998440932';
             const longitud = '-58.2242295528441';
     
             const url = `https://www.google.com/maps?q=${latitud},${longitud}&z=16&hl=es&output=embed`;
             document.getElementById('mapa').src = url;
-        }        
+
+            mp.value = facilities.id_mp;
+            imagePreview.src = `http://localhost:8000/${facilities.foto_url}`;
+
+            // Disponibilidad
+            if (availability !== null) {    
+                crearDisponibilidad(availability);
+            }
+
+            // Canchas del complejo
+            if (fields !== null) {
+                for (let i = 0; i < fields.length; i++) {
+                    crearCanchas(fields[i], types_fields);
+                }    
+            }
+            
+        }
+
+        uploadImage.addEventListener('change', (e) => {
+            const imagen = e.target.files[0];
+            
+            if (imagen) {
+                imagePreview.classList.remove('hidden');
+                const lector = new FileReader();
+    
+                lector.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                }
+    
+                lector.readAsDataURL(imagen);
+            }
+            
+        });
+
+        document.querySelector('.formFacility')
+        .addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const accion = document.getElementById('fmDataFacility');
+            const formData = new FormData();
+
+            if (accion.value === 'registrar') {
+                formData.append('id_usuario', token.id);
+            }else{
+                formData.append('id_complejo', facilities.id);
+            }
+
+            formData.append('nombre', name.value);
+            formData.append('telefono', phone.value);
+            formData.append('ubicacion', address.value);
+            formData.append('latitud', '-26.183754998440932');
+            formData.append('longitud', '-58.2242295528441');
+            formData.append('foto_complejo', uploadImage.files[0]);
+            formData.append('id_mp', mp.value);
+
+            const response = await saveFacility(formData, accion.value);
+
+            const p = document.createElement('p');
+            const next = imagePreview.nextElementSibling;
+            if (next?.matches('p')) {
+                next.remove();
+            }
+            imagePreview.insertAdjacentElement('afterend', p);
+
+            if (response.status === 'ok') {
+                alert(response.message);
+                window.location.reload();
+            }else{
+                p.setAttribute('class', 'message message-error');
+            }
+
+            p.textContent = response.message
+
+            setTimeout(() => {
+                p.remove();
+            }, 2000);
+        });
+
+        // Disponibilidad - agregar o quitar dias
+        const days = document.querySelectorAll('.days');
+        days.forEach(day => {
+            day.addEventListener('change', (e) => {            
+                
+                const avai = day.parentNode;
+                const time = avai.nextElementSibling;
+    
+                if (day.checked) {                
+                    time.innerHTML = `
+                        <p>Abre</p>
+                        <input type="time" class="open-time">
+                        <p>Cierra</p>
+                        <input type="time" class="close-time">
+                    `;
+                }else{
+                    time.innerHTML = '';
+                }
+            }) 
+        });
+        
+        // Disponibilidad - enviar formulario
+        document.querySelector('.formAvailability')
+        .addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const bloques = document.querySelectorAll('.availability-datetime');
+            const disponibilidad = [];
+    
+            bloques.forEach(bloque => {
+                const checkbox = bloque.querySelector('.days');
+                const open = bloque.querySelector('.open-time');
+                const close = bloque.querySelector('.close-time');
+    
+                if (checkbox.checked) {
+                    disponibilidad.push({
+                    dia: checkbox.value,
+                    abre: open.value || null,
+                    cierra: close.value || null
+                    });
+                }
+            });
+
+            let response;
+    
+            if (facilities !== null) {
+                response = await saveAvailability(facilities.id, disponibilidad, actionAvailability.value);
+            }else{
+                response = {
+                    status: 'error',
+                    message: 'Por favor primero registra tu complejo!'
+                };
+            }
+    
+            const p = document.createElement('p');
+            
+            const btnAvailability = document.getElementById('btn-action-availability');
+
+            alerta(response, btnAvailability, p, 'beforebegin');
+            setTimeout(() => {
+                p.remove();
+            }, 4000);
+    
+        });
+
+        let numberField = 0;
+        
+        document.getElementById('addField')
+        .addEventListener('click', () => {
+            if (types_fields !== null) {
+                numberField++;
+                crearCanchas(null, types_fields, numberField);
+            }else{
+                const response = {
+                    status: 'error',
+                    message: 'Por favor primero registra tu complejo!'
+                };
+                const p = document.createElement('p');
+            
+                const saveFieldsButton = document.getElementById('btn-action-field');
+    
+                alerta(response, saveFieldsButton, p, 'beforebegin');
+                setTimeout(() => {
+                    p.remove();
+                }, 4000);
+            }
+    
+        });
+
+        document.querySelector('.formFields')
+        .addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            const data = [];
+    
+            const fields = document.querySelector('.fields');
+            const id = fields.querySelectorAll('button');
+            const precio = fields.querySelectorAll('input');
+            const tipo = fields.querySelectorAll('select');            
+            for (let i = 0; i < precio.length; i++) {
+                data.push({
+                    id: id[i].getAttribute('data-id'),
+                    precio: precio[i].value,
+                    tipo: tipo[i].value
+                });
+            }
+
+            let response;
+            if (facilities !== null) {
+                response = await saveFields(facilities.id, data);
+            }else{
+                response = {
+                    status: 'error',
+                    message: 'Por favor primero registra tu complejo!'
+                };
+            }
+    
+            const p = document.createElement('p');
+        
+            const saveFieldsButton = document.getElementById('btn-action-field');
+
+            alerta(response, saveFieldsButton, p, 'beforebegin');
+            setTimeout(() => {
+                p.remove();
+            }, 4000);
+                
+        });
+
     });
 
-    document.querySelector('.formFacility')
-    .addEventListener('submit', async (e) => {
-        e.preventDefault();
+};
 
-<<<<<<< HEAD
-  // AIzaSyCw1sulYiZqKQHyHqxlE2Ej3IhYnmrrSZA
-=======
-        const accion = document.getElementById('fmDataFacility').value;
-
-        const response = await saveFacility(
-            name.value,
-            phone.value,
-            address.value,
-            image.value,
-            mp.value,
-            accion
-        );
-
-        console.log(response);
-        
-    })
-
+// facility funciones
+function reenumerarCanchas() {
+    const labels = document.querySelectorAll('.field-action p');
+    labels.forEach((p, index) => {
+        p.textContent = `Cancha ${index + 1}`;
+    });
 }
->>>>>>> 411e59b718ad68ede2cf80b80bcc3daf49209d4e
+
+function crearCanchas(canchas = null, tipos = null, numberField) {
+    const fields = document.querySelector('.fields');        
+
+    const button = document.createElement('button');
+    button.textContent = "x";
+    button.setAttribute('type', 'button');    
+    button.setAttribute('data-id', canchas?.id);
+    
+    const p = document.createElement('p');
+    p.textContent = `Cancha ${numberField}`;
+    
+    const div = document.createElement('div');
+    div.classList.add('field-action');
+
+    div.append(button, p);
+    
+    const inputField = document.createElement('input');
+    
+    inputField.setAttribute('placeholder', 'Precio');
+    inputField.setAttribute('type', 'text');
+    inputField.value = canchas?.precio ? canchas.precio : '';
+
+    const select = document.createElement('select');
+    select.classList.add('option');    
+
+    tiposCanchas(canchas?.id_tipo, tipos, select);
+    
+    fields.append(div, inputField, select);
+    
+    button.addEventListener('click', () => {
+        div.remove();
+        inputField.remove();
+        select.remove();    
+        reenumerarCanchas();
+    });
+
+    reenumerarCanchas();
+}
+
+function tiposCanchas(tipo = null, tipos = null, select) {
+    for (let i = 0; i < tipos.length; i++) {
+        const option = document.createElement('option');
+        option.textContent = tipos[i]['descripcion'];
+        option.value = tipos[i]['id'];
+        select.appendChild(option);
+
+        if (tipo !== null && tipo == option.value) {
+            option.setAttribute('selected', true)
+        }
+    }
+}
+
+function crearDisponibilidad(disponibilidad) {
+    const checkbox = document.querySelectorAll('.days');
+    for (let i = 0; i < disponibilidad.length; i++) {
+        const dias_semana = disponibilidad[i]['dia_semana'];
+        const hora_apertura = disponibilidad[i]['hora_apertura'];
+        const hora_cierre = disponibilidad[i]['hora_cierre'];
+
+        for (let j = 0; j < checkbox.length; j++) {
+            const diasCheckbox = checkbox[j].value;
+            if (diasCheckbox === dias_semana) {
+                checkbox[j].checked = true;
+
+                const dayAvailable = checkbox[j].parentNode;
+                const time = dayAvailable.nextElementSibling;
+                
+                time.innerHTML = `
+                    <p>Abre</p>
+                    <input type="time" class="open-time" value="${hora_apertura}">
+                    <p>Cierra</p>
+                    <input type="time" class="close-time" value="${hora_cierre}">
+                `;
+            }
+        }
+    }
+}
+
+function alerta(respuesta, elmt2, elmt3, posicion) {
+    elmt2.insertAdjacentElement(posicion, elmt3);
+            
+    if (respuesta.status === 'ok') {
+        elmt3.setAttribute('class', 'message message-ok');
+    }else{
+        elmt3.setAttribute('class', 'message message-error');
+    }
+
+    elmt3.style.gridColumn = 'span 3';
+    elmt3.style.fontSize = '1em';
+
+    elmt3.textContent = respuesta.message;
+}

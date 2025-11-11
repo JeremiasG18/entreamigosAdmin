@@ -16,7 +16,7 @@
             <ul class="nav-links">
                 <li><a href="./dashboard.html">Reservas</a></li>
                 <li><a href="./facility.html">Complejo</a></li>
-                <li><a href="#">Cuenta</a></li>
+                <li><a href="./account.html">Cuenta</a></li>
                 <li><a href="#" id="logout">Cerrar Sesión</a></li>
             </ul>
         </nav>
@@ -26,8 +26,9 @@
         <h1>Complejo</h1>
         <section class="form-facility">
             <h2>Información</h2>
-            <form action="" method="post" class="formFacility">
+            <form class="formFacility" enctype="multipart/form-data">
                 <input type="hidden" name="facility" value="actualizar" id="fmDataFacility">
+                <input type="hidden" name="id" value="" id="id">
                 <p>Estos son los datos registrados de su complejo</p>
                 <div class="input-container">
                     <input type="text" name="name" id="name" placeholder="Nombre">
@@ -43,9 +44,77 @@
         </section>
         <section class="form-availability">
             <h2>Disponibilidad</h2>
-            <form action="">
-                
+            <p class="pAvailability">Estos son los datos de disponibilidad del complejo</p>
+            <form action="" class="formAvailability">
+                <input type="hidden" name="accion" value="actualizar" id="actionAvailability">
+                <div class="availability-datetime">
+                    <div class="day">
+                        <label for="monday">Lunes</label>
+                        <input type="checkbox" name="days[]" class="days" id="monday" value="Lunes">
+                    </div>
+                    <div class="time">
+                    </div>
+                </div>
+                <div class="availability-datetime">
+                    <div class="day">
+                        <label for="tuesday">Martes</label>
+                        <input type="checkbox" name="days[]" class="days" id="tuesday" value="Martes">
+                    </div>
+                    <div class="time">
+                    </div>
+                </div>
+                <div class="availability-datetime">
+                    <div class="day">
+                        <label for="wednesday">Miercoles</label>
+                        <input type="checkbox" name="days[]" class="days" id="wednesday" value="Miercoles">
+                    </div>
+                    <div class="time">
+                    </div>
+                </div>
+                <div class="availability-datetime">
+                    <div class="day">
+                        <label for="thursday">Jueves</label>
+                        <input type="checkbox" name="days[]" class="days" id="thursday" value="Jueves">
+                    </div>
+                    <div class="time">
+                    </div>
+                </div>
+                <div class="availability-datetime">
+                    <div class="day">
+                        <label for="friday">Viernes</label>
+                        <input type="checkbox" name="days[]" class="days" id="friday" value="Viernes">
+                    </div>
+                    <div class="time">
+                    </div>
+                </div>
+                <div class="availability-datetime">
+                    <div class="day">
+                        <label for="saturday">Sabado</label>
+                        <input type="checkbox" name="days[]" class="days" id="saturday" value="Sabado">
+                    </div>
+                    <div class="time">
+                    </div>
+                </div>
+                <div class="availability-datetime">
+                    <div class="day">
+                        <label for="sunday">Domingo</label>
+                        <input type="checkbox" name="days[]" class="days" id="sunday" value="Domingo">
+                    </div>
+                    <div class="time">
+                    </div>
+                </div>
+                <input type="submit" value="Actualizar disponibilidad" id="btn-action-availability" class="btn btn_important">
             </form>
+        </section>
+        <section class="form-fields">
+            <h2>Canchas</h2>
+            <p class="pFields">Estas son las canchas registradas que posee su complejo</p>
+            <form action="" class="formFields">
+                <div class="fields"></div>
+                <button type="button" class="btn btn_simple" id="addField">Agregar cancha</button>
+                <input type="submit" value="Actualizar canchas" class="btn btn_important" id="btn-action-field">
+            </form>
+
         </section>
     </main>
 

@@ -1,27 +1,44 @@
-import { postData, getData } from './api.js';
+import { postData, getData, putData } from './api.js';
+
+const token = localStorage.getItem('authToken');
 
 export async function facility() {
-    const token = localStorage.getItem('authToken');    
-    
     const response = await getData('registerFacility', null, token);
     
     return response
 }
 
-export async function saveFacility(name, phone, address, lat, long, img, mp, accion='actualizar') {
-    const token = localStorage.getItem('authToken');    
-    
-    const data = {
-        name: name,
-        phone: phone,
-        address: address,
-        latitude: lat,
-        longitude: long,
-        image: img,
-        mercado_pago: mp
-    };    
+export async function saveFacility(data, accion='actualizar') {
+    let response;
+    if (accion === 'actualizar') {       
+        response = await postData('updateFacility', data, null, token, 'formData');
+    }else{
+        response = await postData('registerFacility', data, null, token, 'formData');
+    }
 
-    const response = await postData('registerFacility', data, null, token);
+    return response;
+}
+
+export async function saveAvailability(id_complejo, availability, accion) {
+    const data = {
+        id_complejo: id_complejo,
+        disponibilidad: availability
+    };
+        
+    let response;
+
+    if (accion === 'registrar') {
+        response = await postData('saveAvailability', data, null, token);
+    }else{
+        response = await postData('updateAvailability', data, null, token);
+    }
+
+    return response;
+    
+}
+
+export async function saveFields(id_complejo, fields) {    
+    const response = await postData('saveFields', {id_complejo: id_complejo, canchas: fields}, null, token);
 
     return response;
 }

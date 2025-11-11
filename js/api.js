@@ -1,14 +1,29 @@
 const BASE_URL = 'http://localhost:8000/';
 
-export async function postData(endpoint, data = null, dataUrl = null, token = null) {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data)
-    });
+export async function postData(endpoint, data = null, dataUrl = null, token = null, type = 'json') {
+    
+    let response;
+
+    if (type === 'json') {
+        response = await fetch(`${BASE_URL}${endpoint}`, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+        
+    }else{
+        response = await fetch(`${BASE_URL}${endpoint}`, {
+            method: 'post',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: data
+        });
+    }
+    
     return response.json();
 }
 
@@ -39,17 +54,21 @@ export async function putData(endpoint, data = null, dataUrl = null, token = nul
 
     if (dataUrl !== null) {
         response = await fetch(`${BASE_URL}${endpoint}/?token=${dataUrl}`, {
+            method: 'put',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
+            body: data,
         });
     }else{
         response = await fetch(`${BASE_URL}${endpoint}`, {
+            method: 'put',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            }
+            },
+            body: data,
         })
     }
+
+    return response.json();
 }
